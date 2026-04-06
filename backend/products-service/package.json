@@ -1,0 +1,17 @@
+{
+  "name": "products-service",
+  "version": "1.0.0",
+  "description": "Service for mantaining products catalog",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Pedro Henrique",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@azure/storage-blob": "^12.31.0",
+    "common": "file:../common"
+  }
+}

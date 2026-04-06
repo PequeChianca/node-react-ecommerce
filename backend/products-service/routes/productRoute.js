@@ -1,7 +1,8 @@
 import express from 'express';
-import Product from '../models/productModel';
-import { isAuth, isAdmin } from '../util';
+import Product from '../models/productModel.js';
+import common from 'common';
 
+const { isAuth, isAdmin } = common;
 const router = express.Router();
 
 router.get('/', async (req, res) => {
