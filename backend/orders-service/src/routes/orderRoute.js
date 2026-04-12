@@ -1,10 +1,11 @@
-import express from 'express';
-import Order from '../models/orderModel.js';
+import orderModel from '../models/orderModel.js';
 import common from 'common';
 
 const { isAdmin, isAuth } = common;
 
-const router = express.Router();
+const router = common.CreateAppRouter();
+
+const { Order, orderRepository } = orderModel;
 
 router.get("/", isAuth, async (req, res) => {
   const orders = await Order.find({}).populate('user');

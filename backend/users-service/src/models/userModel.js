@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import common from 'common';
 
-const userSchema = new mongoose.Schema({
+const userRepository = new common.AppDataRepository('User', {
   name: { type: String, required: true },
   email: {
     type: String, required: true, unique: true, index: true, dropDups: true,
@@ -9,6 +9,6 @@ const userSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, required: true, default: false },
 });
 
-const userModel = mongoose.model('User', userSchema);
+const User = userRepository.exportModel();
 
-export default userModel;
+export default { User: User, userRepository: userRepository };

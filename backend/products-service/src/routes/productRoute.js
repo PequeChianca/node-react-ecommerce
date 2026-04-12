@@ -1,26 +1,28 @@
-import express from 'express';
-import Product from '../models/productModel.js';
+import productModel from '../models/productModel.js';
 import common from 'common';
 
-const { isAuth, isAdmin } = common;
-const router = express.Router();
+const { isAdmin, isAuth, CreateAppRouter } = common;
+
+const router = CreateAppRouter();
+
+const { Product, productsRepository } = productModel;
 
 router.get('/', async (req, res) => {
   const category = req.query.category ? { category: req.query.category } : {};
   const searchKeyword = req.query.searchKeyword
     ? {
-        name: {
-          $regex: req.query.searchKeyword,
-          $options: 'i',
-        },
-      }
+      name: {
+        $regex: req.query.searchKeyword,
+        $options: 'i',
+      },
+    }
     : {};
   const sortOrder = req.query.sortOrder
     ? req.query.sortOrder === 'lowest'
       ? { price: 1 }
       : { price: -1 }
     : { _id: -1 };
-  const products = await Product.find({ ...category, ...searchKeyword }).sort(
+  const products = await productsRepository.find({ ...category, ...searchKeyword }).sort(
     sortOrder
   );
   res.send(products);

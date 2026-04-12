@@ -1,10 +1,9 @@
-import express from 'express';
-
+import common from 'common';
 import { upload, uploadBufferToAzure } from '../infrastructure/file-storage.js';
 
 const CONTAINER_NAME = process.env.AZURE_BLOB_CONTAINER || 'images';
 
-const router = express.Router();
+const router = common.CreateAppRouter();
 
 
 router.post('/', upload.single('image'), async (req, res) => {

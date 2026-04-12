@@ -1,0 +1,51 @@
+services:
+  mongo-db:
+    image: mongo:5.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+  azurite-storage-emulator:
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    volumes:
+      - azurite-data:/data
+  orders-service:
+    build:
+      context: ./backend
+      dockerfile: orders-service/dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - MONGODB_URL=mongodb://mongo-db:27017/orders
+    depends_on:
+      - mongo-db
+  products-service:
+    build:
+      context: ./backend
+      dockerfile: products-service/dockerfile
+    ports:
+      - "3002:3000"
+    environment:
+      - MONGODB_URL=mongodb://mongo-db:27017/products
+      - AZURE_BLOB_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBek==;BlobEndpoint=http://azurite-storage-emulator:10000/devstoreaccount1;
+    depends_on:
+      - mongo-db
+      - azurite-storage-emulator
+  users-service:
+    build:
+      context: ./backend
+      dockerfile: users-service/dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URL=mongodb://mongo-db:27017/users
+    depends_on:
+      - mongo-db
+
+volumes:
+  mongo-data:
+  azurite-data:

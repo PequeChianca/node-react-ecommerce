@@ -1,0 +1,43 @@
+# stage 1 - build the application
+FROM node:24 AS builder
+WORKDIR /app
+
+
+# Set workdir to /app
+WORKDIR /app/common
+
+# Copy both common and users-service into build context
+COPY ../common/package*.json ./
+COPY ../common/src ./src
+
+RUN npm install
+
+# Back to service root
+WORKDIR /app/orders-service
+# copy package.json and package-lock.json to leverage Docker cache
+COPY orders-service/package*.json ./
+RUN npm install
+
+# copy the rest of the application code
+COPY orders-service/src ./src
+
+
+# stage 2 - create the production image
+FROM node:24-alpine AS production
+
+
+WORKDIR /app/common
+
+COPY --from=builder /app/common ./
+
+WORKDIR /app/orders-service
+
+# copy only the necessary files from the builder stage
+COPY --from=builder /app/orders-service/node_modules ./node_modules
+COPY --from=builder /app/orders-service/src ./src
+
+# change ownership to the non-root user
+RUN chown -R node:node /app
+
+USER node
+CMD ["node", "src/server.js"]
