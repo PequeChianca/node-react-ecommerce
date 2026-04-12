@@ -11,7 +11,7 @@ const reviewsSchema = common.AppDataRepository.createSchema(
   }
 );
 
-const productRepository = new common.AppDataRepository('Product',
+const productsRepository = new common.AppDataRepository('Product',
   {
     name: { type: String, required: true },
     image: { type: String, required: true },
@@ -29,4 +29,4 @@ const productRepository = new common.AppDataRepository('Product',
   }
 );
 
-export default { productRepository: productRepository, Product: productRepository.exportModel() };
+export default { productRepository: productsRepository, Product: productsRepository.exportModel() };
