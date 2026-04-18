@@ -23,8 +23,10 @@ const orderItemSchema = common.AppDataRepository.createSchema({
   },
 });
 
+const userSchema = common.AppDataRepository.getUserSchema();
+
 const orderSchema = common.AppDataRepository.createSchema({
-  user: { type: common.AppDataRepository.Types.ObjectId, required: true },
+  user: { type: userSchema, required: true },
   orderItems: [orderItemSchema],
   shipping: shippingSchema,
   payment: paymentSchema,

@@ -29,6 +29,10 @@ export class AppDataRepository {
         return this.#dataModel.find(filter);
     }
 
+    remove(filter) {
+        return this.#dataModel.deleteOne(filter);
+    }
+
     async createNewAsync(data) {
         const newData = new this.#dataModel(data);
 
@@ -45,6 +49,16 @@ export class AppDataRepository {
         return new mongoose.Schema(schemaDefinition, options);
     }
 
+    static getUserSchema() {
+        return new mongoose.Schema({
+            id: { type: mongoose.Schema.Types.ObjectId, required: true },
+            name: { type: String, required: true },
+            email: { type: String, required: true, unique: true, index: true, dropDups: true }
+        });
+    }
+
     static Types = mongoose.Schema.Types;
+
+
 }
 
