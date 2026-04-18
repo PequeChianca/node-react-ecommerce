@@ -52,7 +52,7 @@ function ProductsScreen(props) {
     setName(product.name);
     setPrice(product.price);
     setDescription(product.description);
-    setImage(product.image);
+    setImage(product.image && product.image.url ? product.image.url : (product.image || ''));
     setBrand(product.brand);
     setCategory(product.category);
     setCountInStock(product.countInStock);
@@ -64,7 +64,7 @@ function ProductsScreen(props) {
         _id: id,
         name,
         price,
-        image,
+        image: image ? { url: image } : undefined,
         brand,
         category,
         countInStock,
@@ -87,7 +87,7 @@ function ProductsScreen(props) {
         },
       })
       .then((response) => {
-        setImage(response.data);
+        setImage(response.data.url || response.data);
         setUploading(false);
       })
       .catch((err) => {

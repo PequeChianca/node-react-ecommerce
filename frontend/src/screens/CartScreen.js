@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { addToCart, removeFromCart } from '../actions/cartActions';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { getImageUrl } from '../utils';
 function CartScreen(props) {
 
   const cart = useSelector(state => state.cart);
@@ -44,7 +45,7 @@ function CartScreen(props) {
             cartItems.map(item =>
               <li>
                 <div className="cart-image">
-                  <img src={item.image} alt="product" />
+                  <img src={getImageUrl(item.image)} alt="product" />
                 </div>
                 <div className="cart-name">
                   <div>

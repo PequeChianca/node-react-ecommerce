@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { createOrder, detailsOrder, payOrder } from '../actions/orderActions';
 import PaypalButton from '../components/PaypalButton';
+import { getImageUrl } from '../utils';
 function OrderScreen(props) {
 
   const orderPay = useSelector(state => state.orderPay);
@@ -70,7 +71,7 @@ function OrderScreen(props) {
                   order.orderItems.map(item =>
                     <li key={item._id}>
                       <div className="cart-image">
-                        <img src={item.image} alt="product" />
+                        <img src={getImageUrl(item.image)} alt="product" />
                       </div>
                       <div className="cart-name">
                         <div>

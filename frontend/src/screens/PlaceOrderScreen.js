@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { createOrder } from '../actions/orderActions';
+import { getImageUrl } from '../utils';
 function PlaceOrderScreen(props) {
 
   const cart = useSelector(state => state.cart);
@@ -74,7 +75,7 @@ function PlaceOrderScreen(props) {
                 cartItems.map(item =>
                   <li>
                     <div className="cart-image">
-                      <img src={item.image} alt="product" />
+                      <img src={getImageUrl(item.image)} alt="product" />
                     </div>
                     <div className="cart-name">
                       <div>

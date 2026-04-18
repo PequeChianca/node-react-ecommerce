@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { listProducts } from '../actions/productActions';
 import Rating from '../components/Rating';
+import { getImageUrl } from '../utils';
 
 function HomeScreen(props) {
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -64,7 +65,7 @@ function HomeScreen(props) {
                 <Link to={'/product/' + product._id}>
                   <img
                     className="product-image"
-                    src={product.image}
+                    src={getImageUrl(product.image)}
                     alt="product"
                   />
                 </Link>
