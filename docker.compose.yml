@@ -25,6 +25,7 @@ services:
       - "5001:3000"
     environment:
       - MONGODB_URL=mongodb://mongo-db:27017
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
     depends_on:
       - mongo-db
   products-service:
@@ -52,6 +53,34 @@ services:
     depends_on:
       - mongo-db
   
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  notifications-service:
+    container_name: notifications-service
+    build:
+      context: ./backend
+      dockerfile: notifications-service/dockerfile
+    ports:
+      - "5004:3000"
+    environment:
+      - MONGODB_URL=mongodb://mongo-db:27017
+      - RABBIT_MQ=amqp://rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongo-db:
+        condition: service_started
   nginx:
     container_name: api-gateway
     build:
@@ -63,7 +92,9 @@ services:
       - orders-service
       - products-service
       - users-service
+      - notifications-service
 
 volumes:
   mongo-data:
   azurite-data:
+  rabbitmq-data:

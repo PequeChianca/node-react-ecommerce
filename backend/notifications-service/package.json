@@ -1,0 +1,16 @@
+{
+  "name": "notification-service",
+  "version": "1.0.0",
+  "description": "Notification services for ecomerce projcet",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js"
+  },
+  "author": "Pedro Henrique",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "common": "file:../common"
+  }
+}

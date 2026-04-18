@@ -3,6 +3,9 @@ import config from './config.js';
 import { AppServer, CreateAppRouter } from './server/app-server.js';
 import { AppDataAccess } from './data-layer/app-data-access.js';
 import { AppDataRepository } from './data-layer/app-data-repository.js';
+import { publishMessage } from './messages/message-publisher.js';
+import { MessageConsumer } from './messages/message-consumer.js';
+
 
 export default {
   ...util,
@@ -11,4 +14,6 @@ export default {
   CreateAppRouter,
   AppDataAccess,
   AppDataRepository,
+  publishMessage,
+  MessageConsumer,
 };
