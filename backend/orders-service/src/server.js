@@ -1,7 +1,7 @@
 import config from 'common';
 import orderRoute from './routes/orderRoute.js';
 
-const appDataAccess = new config.AppDataAccess('ecommerce');
+const appDataAccess = new config.AppDataAccess('orders');
 appDataAccess.connect();
 
 const appServer = new config.AppServer('Orders', config.PORT);

@@ -24,7 +24,7 @@ const orderItemSchema = common.AppDataRepository.createSchema({
 });
 
 const orderSchema = common.AppDataRepository.createSchema({
-  user: { type: common.AppDataRepository.Types.ObjectId, ref: 'User', required: true },
+  user: { type: common.AppDataRepository.Types.ObjectId, required: true },
   orderItems: [orderItemSchema],
   shipping: shippingSchema,
   payment: paymentSchema,

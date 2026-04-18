@@ -29,15 +29,16 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-  const product = await Product.findOne({ _id: req.params.id });
+  const product = await productsRepository.findOne({ _id: req.params.id });
   if (product) {
     res.send(product);
   } else {
     res.status(404).send({ message: 'Product Not Found.' });
   }
 });
+
 router.post('/:id/reviews', isAuth, async (req, res) => {
-  const product = await Product.findById(req.params.id);
+  const product = await productsRepository.findById(req.params.id);
   if (product) {
     const review = {
       name: req.body.name,
@@ -58,9 +59,10 @@ router.post('/:id/reviews', isAuth, async (req, res) => {
     res.status(404).send({ message: 'Product Not Found' });
   }
 });
+
 router.put('/:id', isAuth, isAdmin, async (req, res) => {
   const productId = req.params.id;
-  const product = await Product.findById(productId);
+  const product = await productsRepository.findById(productId);
   if (product) {
     product.name = req.body.name;
     product.price = req.body.price;
@@ -80,7 +82,7 @@ router.put('/:id', isAuth, isAdmin, async (req, res) => {
 });
 
 router.delete('/:id', isAuth, isAdmin, async (req, res) => {
-  const deletedProduct = await Product.findById(req.params.id);
+  const deletedProduct = await productsRepository.findById(req.params.id);
   if (deletedProduct) {
     await deletedProduct.remove();
     res.send({ message: 'Product Deleted' });

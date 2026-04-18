@@ -5,8 +5,8 @@ import { BlobServiceClient } from '@azure/storage-blob';
 export const upload = multer({ storage: multer.memoryStorage() });
 
 // Azure Blob Storage configuration
-const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING || 'UseDevelopmentStorage=true';
-const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
+const AZURE_BLOB_CONNECTION_STRING = process.env.AZURE_BLOB_CONNECTION_STRING || 'UseDevelopmentStorage=true';
+const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_BLOB_CONNECTION_STRING);
 
 export async function uploadBufferToAzure(containerName, buffer, originalName, mimetype) {
 	const containerClient = blobServiceClient.getContainerClient(containerName);

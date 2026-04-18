@@ -13,9 +13,9 @@ export class AppDataRepository {
     }
 
     #createModel() {
-        const mongoSchema = new mongoose.Schema(this.schema);    
+        const mongoSchema = new mongoose.Schema(this.schema);
         return mongoose.model(this.modelName, mongoSchema);
-    }   
+    }
 
     findById(id) {
         return this.#dataModel.findById(id);
@@ -23,6 +23,10 @@ export class AppDataRepository {
 
     findOne(filter) {
         return this.#dataModel.findOne(filter);
+    }
+
+    find(filter) {
+        return this.#dataModel.find(filter);
     }
 
     async createNewAsync(data) {
@@ -36,7 +40,7 @@ export class AppDataRepository {
     exportModel() {
         return this.#dataModel;
     }
-    
+
     static createSchema(schemaDefinition, options) {
         return new mongoose.Schema(schemaDefinition, options);
     }

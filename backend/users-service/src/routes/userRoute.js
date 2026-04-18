@@ -1,6 +1,8 @@
 import common from 'common';
-import User from '../models/userModel.js';
+import userModel from '../models/userModel.js';
 
+const User = userModel.User;
+const userRepository = userModel.userRepository;
 
 const { getToken, isAuth, CreateAppRouter } = common;
 

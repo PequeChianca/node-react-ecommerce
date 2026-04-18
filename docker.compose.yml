@@ -1,12 +1,15 @@
 services:
   mongo-db:
     image: mongo:5.0
+    container_name: mongo-db
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
   azurite-storage-emulator:
     image: mcr.microsoft.com/azure-storage/azurite
+    container_name: azurite-storage-emulator
+    command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0
     ports:
       - "10000:10000"
       - "10001:10001"
@@ -14,37 +17,52 @@ services:
     volumes:
       - azurite-data:/data
   orders-service:
+    container_name: orders-service
     build:
       context: ./backend
       dockerfile: orders-service/dockerfile
     ports:
-      - "3001:3000"
+      - "5001:3000"
     environment:
-      - MONGODB_URL=mongodb://mongo-db:27017/orders
+      - MONGODB_URL=mongodb://mongo-db:27017
     depends_on:
       - mongo-db
   products-service:
+    container_name: products-service
     build:
       context: ./backend
       dockerfile: products-service/dockerfile
     ports:
-      - "3002:3000"
+      - "5002:3000"
     environment:
-      - MONGODB_URL=mongodb://mongo-db:27017/products
-      - AZURE_BLOB_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBek==;BlobEndpoint=http://azurite-storage-emulator:10000/devstoreaccount1;
+      - MONGODB_URL=mongodb://mongo-db:27017                                     
+      - AZURE_BLOB_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite-storage-emulator:10000/devstoreaccount1;
     depends_on:
       - mongo-db
       - azurite-storage-emulator
   users-service:
+    container_name: users-service
     build:
       context: ./backend
       dockerfile: users-service/dockerfile
     ports:
-      - "3000:3000"
+      - "5003:3000"
     environment:
-      - MONGODB_URL=mongodb://mongo-db:27017/users
+      - MONGODB_URL=mongodb://mongo-db:27017
     depends_on:
       - mongo-db
+  
+  nginx:
+    container_name: api-gateway
+    build:
+      context: ./backend/nginx
+      dockerfile: dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - orders-service
+      - products-service
+      - users-service
 
 volumes:
   mongo-data:

@@ -1,29 +1,30 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import statusRoute from './status-route.js';
 
-export function CreateAppRouter(){
+export function CreateAppRouter() {
     return express.Router();
 }
 
-export class AppServer{
+export class AppServer {
 
     serverName;
     serverPort;
     routes;
-    
-    constructor(serverName, serverPort){
+
+    constructor(serverName, serverPort) {
         this.serverName = serverName;
         this.serverPort = serverPort;
-        this.routes = [];
+        this.routes = [{ path: '/status', handler: statusRoute }];
     }
 
-    registerRoute(path, handler){
-        this.routes.push({path, handler});
+    registerRoute(path, handler) {
+        this.routes.push({ path, handler });
 
         return this;
     }
-    
-    startServer(){
+
+    startServer() {
         const app = express();
         app.use(bodyParser.json());
 
@@ -32,9 +33,9 @@ export class AppServer{
         });
 
         app.listen(this.serverPort, () => {
-        console.log(`${this.serverName} server started at http://localhost:${this.serverPort}`);
+            console.log(`${this.serverName} server started at http://localhost:${this.serverPort}`);
         });
     }
 
 }
-  
+
