@@ -51,21 +51,10 @@ services:
     # Not setting 'image' here prevents Compose from tagging/overwriting the official node image.
     build:
       dockerfile: dockerfile.dev
-    working_dir: /app
     volumes:
       - ./frontend:/app
       # Isolate node_modules inside the container to avoid host/container conflicts
       - frontend_dev_modules:/app/node_modules
-    command: sh -c "npm install && npm start"
-    environment:
-      - NODE_OPTIONS=--openssl-legacy-provider
-      # Point the CRA proxy at the api-gateway container name instead of localhost
-      - API_GATEWAY_URL=http://api-gateway:80
-      # Required for file-change detection inside Docker volumes on Windows/macOS
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
-      # Bind to all interfaces so the port is reachable from the host
-      - HOST=0.0.0.0
     ports:
       - "3001:3000"
     depends_on:

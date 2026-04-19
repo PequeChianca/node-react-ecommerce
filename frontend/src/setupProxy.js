@@ -8,8 +8,7 @@ const TARGET = process.env.API_GATEWAY_URL || 'http://127.0.0.1:5000';
 module.exports = function (app) {
   // SSE endpoint — registered first so it takes priority
   app.use(
-    '/api/notifications/stream',
-    proxy({
+    proxy('/api/notifications/stream', {
       target: TARGET,
       changeOrigin: true,
       // Remove Accept-Encoding so the upstream never compresses the stream
@@ -25,8 +24,7 @@ module.exports = function (app) {
 
   // All other /api/* routes — standard proxy
   app.use(
-    '/api',
-    proxy({
+    proxy('/api', {
       target: TARGET,
       changeOrigin: true,
     })
