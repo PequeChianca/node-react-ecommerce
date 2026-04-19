@@ -18,13 +18,31 @@ export function removeClient(userId, res) {
 export function emitToUser(userId, data) {
     const key = String(userId);
     const userClients = clients.get(key);
-    if (!userClients) return;
+    if (!userClients || userClients.size === 0) {
+        console.warn(`No clients connected for user ${userId}, skipping notification`);
+        return;
+    }
+
     const payload = `data: ${JSON.stringify(data)}\n\n`;
     for (const res of userClients) {
+        if (res.writableEnded || res.destroyed) {
+            // stale connection — remove it
+            userClients.delete(res);
+            continue;
+        }
         try {
-            res.write(payload);
-        } catch (_) {
-            // client disconnected, cleanup handled via req 'close' event
+            res.write(payload, (err) => {
+                if (err) {
+                    console.warn(`Failed to write to SSE client for user ${userId}: ${err.message}`);
+                    userClients.delete(res);
+                } else {
+                    console.log(`Emitting notification to user ${userId}: ${payload.trim()}`);
+                }
+            });
+        } catch (err) {
+            console.warn(`Exception writing to SSE client for user ${userId}: ${err.message}`);
+            userClients.delete(res);
         }
     }
+    if (userClients.size === 0) clients.delete(key);
 }

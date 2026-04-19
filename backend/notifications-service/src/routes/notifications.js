@@ -1,7 +1,7 @@
 import common from 'common';
 import registeredUserModel from '../models/registeredUserModel.js';
 import notificationModel from '../models/notificationModel.js';
-import { addClient, removeClient } from '../sse-manager.js';
+import { addClient, removeClient, emitToUser } from '../sse-manager.js';
 
 
 const { RegisteredUser, registeredUsersRepository } = registeredUserModel;
@@ -43,31 +43,46 @@ router.get('/stream',
         next();
     },
     isAuth,
-    (req, res) => {
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
-        res.setHeader('X-Accel-Buffering', 'no');
-        res.flushHeaders();
+    async (req, res) => {
+        res.writeHead(200, {
+            // 'text/event-stream': Standard MIME type for SSE
+            // Tells browser to handle this response as EventSource
+            'Content-Type': 'text/event-stream',
+
+            // 'no-cache': Prevents proxies or browsers from caching response
+            // Essential for SSE as it's real-time data
+            'Cache-Control': 'no-cache',
+
+            // 'keep-alive': Maintains HTTP connection
+            // Required for SSE to keep connection open for long periods
+            'Connection': 'keep-alive',
+
+            // CORS headers - compliance with browser security policies
+            'Access-Control-Allow-Origin': 'http://localhost:3000',
+            'Access-Control-Allow-Credentials': 'true'
+        });
+        // res.setHeader('X-Accel-Buffering', 'no');
+        // res.flushHeaders();
 
         // Send an initial heartbeat so the client knows the connection is live
         res.write(`data: ${JSON.stringify({ type: 'connected' })}\n\n`);
 
-        connectUser(req.user, res);
+        // Register the client synchronously so it is available immediately,
+        // before any async work (upsertRegisteredUser) completes.
+        addClient(req.user._id, res);
+        req.on('close', () => {
+            removeClient(req.user._id, res);
+            upsertRegisteredUser(req.user, false).catch((err) =>
+                console.error('upsertRegisteredUser (offline) error:', err)
+            );
+        });
 
-        req.on('close', () => disconnectUser(req.user, res));
+        // Upsert the registered-user record in the background (non-blocking).
+        await upsertRegisteredUser(req.user, true).catch((err) =>
+            console.error('upsertRegisteredUser error:', err)
+        );        
     }
 );
-
-async function connectUser(user, res) {
-    await upsertRegisteredUser(user, true);
-    addClient(user._id, res);
-}
-
-async function disconnectUser(user, res) {
-    await upsertRegisteredUser(user, false);
-    removeClient(user._id, res);
-}
 
 async function upsertRegisteredUser(user, isOnline = false) {
     const existingUser = await registeredUsersRepository.findOne({ _id: user._id });

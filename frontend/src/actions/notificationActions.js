@@ -24,13 +24,24 @@ export const fetchNotifications = () => async (dispatch, getState) => {
 };
 
 export const startNotificationStream = () => (dispatch, getState) => {
-  if (notificationEventSource) return; // already connected
+  console.log('Starting notification stream');
+  if (notificationEventSource){
+    console.log('Notification stream already active, skipping');
+     return; // already connected
+  }
 
   const { userSignin: { userInfo } } = getState();
   if (!userInfo) return;
 
-  const url = `/api/notifications/stream?token=${encodeURIComponent(userInfo.token)}`;
+  // Connect directly to the API gateway (port 5000) to bypass the CRA dev
+  // server proxy, which buffers streaming responses and blocks SSE.
+  const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const url = `${apiBase}/api/notifications/stream?token=${encodeURIComponent(userInfo.token)}`;
   notificationEventSource = new EventSource(url);
+
+  notificationEventSource.onopen = () => {
+    console.log('Notification stream connected');
+  };
 
   notificationEventSource.onmessage = (event) => {
     const parsed = JSON.parse(event.data);

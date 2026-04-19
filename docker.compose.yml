@@ -2,27 +2,25 @@ services:
   mongo-db:
     image: mongo:5.0
     container_name: mongo-db
-    ports:
-      - "27017:27017"
+    restart: unless-stopped
+    # Port intentionally not exposed to the host in production.
+    # Services communicate via the internal Docker network.
     volumes:
       - mongo-data:/data/db
   azurite-storage-emulator:
     image: mcr.microsoft.com/azure-storage/azurite
     container_name: azurite-storage-emulator
+    restart: unless-stopped
     command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0
-    ports:
-      - "10000:10000"
-      - "10001:10001"
-      - "10002:10002"
+    # Ports intentionally not exposed to the host in production.
     volumes:
       - azurite-data:/data
   orders-service:
     container_name: orders-service
+    restart: unless-stopped
     build:
       context: ./backend
       dockerfile: orders-service/dockerfile
-    ports:
-      - "5001:3000"
     environment:
       - MONGODB_URL=mongodb://mongo-db:27017
       - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
@@ -31,35 +29,33 @@ services:
       - mongo-db
   products-service:
     container_name: products-service
+    restart: unless-stopped
     build:
       context: ./backend
       dockerfile: products-service/dockerfile
-    ports:
-      - "5002:3000"
     environment:
-      - MONGODB_URL=mongodb://mongo-db:27017                                     
-      - AZURE_BLOB_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite-storage-emulator:10000/devstoreaccount1;
+      - MONGODB_URL=mongodb://mongo-db:27017
+      - AZURE_BLOB_CONNECTION_STRING=${AZURE_BLOB_CONNECTION_STRING}
     depends_on:
       - mongo-db
       - azurite-storage-emulator
   users-service:
     container_name: users-service
+    restart: unless-stopped
     build:
       context: ./backend
       dockerfile: users-service/dockerfile
-    ports:
-      - "5003:3000"
     environment:
       - MONGODB_URL=mongodb://mongo-db:27017
     depends_on:
       - mongo-db
-  
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    restart: unless-stopped
+    # Only the management UI port (15672) is suppressed in production.
+    # The AMQP port is internal-only; services connect via container name.
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
@@ -69,11 +65,10 @@ services:
       retries: 5
   notifications-service:
     container_name: notifications-service
+    restart: unless-stopped
     build:
       context: ./backend
       dockerfile: notifications-service/dockerfile
-    ports:
-      - "5004:3000"
     environment:
       - MONGODB_URL=mongodb://mongo-db:27017
       - RABBIT_MQ=amqp://rabbitmq
@@ -84,6 +79,7 @@ services:
         condition: service_started
   nginx:
     container_name: api-gateway
+    restart: unless-stopped
     build:
       context: ./backend/nginx
       dockerfile: dockerfile
@@ -94,6 +90,18 @@ services:
       - products-service
       - users-service
       - notifications-service
+  frontend:
+    container_name: frontend
+    restart: unless-stopped
+    build:
+      context: ./frontend
+      dockerfile: dockerfile
+    environment:
+      - API_GATEWAY_URL=http://api-gateway:80
+    ports:
+      - "3000:80"
+    depends_on:
+      - nginx
 
 volumes:
   mongo-data:
