@@ -3,28 +3,30 @@ import registeredUserModel from '../models/registeredUserModel.js';
 import notificationModel from '../models/notificationModel.js';
 import { emitToUser } from '../sse-manager.js';
 import { mapUserToNotificationUser } from '../models/mappings/user-mapping.js';
-
 const { RegisteredUser, registeredUsersRepository } = registeredUserModel;
 const { Notification, notificationRepository } = notificationModel;
 
-export default async function HandleOrderCreated(orderCreated) {
+export default async function HandleOrderPaid(orderPaid) {
 
     var adminUsers = await registeredUsersRepository.find({ isAdmin: true });
 
     for (const admin of adminUsers) {
-        const notificationUser = mapUserToNotificationUser(admin);
+        var notificationUser = mapUserToNotificationUser(admin);
+
         var notificationData = {
-            id: orderCreated.id,
-            orderItems: orderCreated.orderItems,
-            shipping: orderCreated.shipping,
+            id: orderPaid.id,
+            orderItems: orderPaid.orderItems,
+            shipping: orderPaid.shipping,
+            payment: orderPaid.payment,
+            itemsPrice: orderPaid.itemsPrice
         };
 
         const notification = await notificationRepository.createNewAsync({
-            sourceUser: orderCreated.user,
+            sourceUser: orderPaid.user,
             deliveryTo: notificationUser,
-            message: `New order created with id ${notificationData.id}`,
+            message: `Order paid with id ${notificationData.id}`,
             read: false,
-            type: 'OrderCreated',
+            type: 'OrderPaid',
             sourceData: notificationData
         });
 

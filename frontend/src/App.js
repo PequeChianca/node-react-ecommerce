@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Route, Link } from 'react-router-dom';
 import './App.css';
 import HomeScreen from './screens/HomeScreen';
 import ProductScreen from './screens/ProductScreen';
 import CartScreen from './screens/CartScreen';
 import SigninScreen from './screens/SigninScreen';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import RegisterScreen from './screens/RegisterScreen';
 import ProductsScreen from './screens/ProductsScreen';
 import ShippingScreen from './screens/ShippingScreen';
@@ -14,10 +14,26 @@ import PlaceOrderScreen from './screens/PlaceOrderScreen';
 import OrderScreen from './screens/OrderScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import OrdersScreen from './screens/OrdersScreen';
+import NotificationsScreen from './screens/NotificationsScreen';
+import { startNotificationStream, stopNotificationStream } from './actions/notificationActions';
 
 function App() {
+  const dispatch = useDispatch();
   const userSignin = useSelector((state) => state.userSignin);
   const { userInfo } = userSignin;
+  const { notifications } = useSelector((state) => state.notificationList);
+  const unreadCount = notifications ? notifications.filter((n) => !n.read).length : 0;
+
+  useEffect(() => {
+    if (userInfo) {
+      dispatch(startNotificationStream());
+    } else {
+      dispatch(stopNotificationStream());
+    }
+    return () => {
+      dispatch(stopNotificationStream());
+    };
+  }, [userInfo]);
 
   const openMenu = () => {
     document.querySelector('.sidebar').classList.add('open');
@@ -36,7 +52,12 @@ function App() {
           <div className="header-links">
             <a href="cart.html">Cart</a>
             {userInfo ? (
-              <Link to="/profile">{userInfo.name}</Link>
+              <>
+                <Link to="/notifications">
+                  🔔{unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+                </Link>
+                <Link to="/profile">{userInfo.name}</Link>
+              </>
             ) : (
               <Link to="/signin">Sign In</Link>
             )}
@@ -71,6 +92,7 @@ function App() {
         <main className="main">
           <div className="content">
             <Route path="/orders" component={OrdersScreen} />
+            <Route path="/notifications" component={NotificationsScreen} />
             <Route path="/profile" component={ProfileScreen} />
             <Route path="/order/:id" component={OrderScreen} />
             <Route path="/products" component={ProductsScreen} />

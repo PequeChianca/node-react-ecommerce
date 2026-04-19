@@ -14,7 +14,13 @@ export class MessageConsumer {
     }
 
     registerHandler(messageType, handler) {
-        this.handlers.push({ messageType, handler });
+        
+        this.handlers.push({
+            messageType, handler: async (payload) => {
+                await handler(payload);
+            }
+        });
+
         return this;
     }
 

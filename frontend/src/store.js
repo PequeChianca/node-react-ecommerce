@@ -22,6 +22,7 @@ import {
   orderListReducer,
   orderDeleteReducer,
 } from './reducers/orderReducers';
+import { notificationListReducer } from './reducers/notificationReducers';
 
 const cartItems = Cookie.getJSON('cartItems') || [];
 const userInfo = Cookie.getJSON('userInfo') || null;
@@ -46,6 +47,7 @@ const reducer = combineReducers({
   myOrderList: myOrderListReducer,
   orderList: orderListReducer,
   orderDelete: orderDeleteReducer,
+  notificationList: notificationListReducer,
 });
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
