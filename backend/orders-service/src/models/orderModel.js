@@ -8,7 +8,13 @@ const shippingSchema = {
 };
 
 const paymentSchema = {
-  paymentMethod: { type: String, required: true }
+  paymentMethod: { type: String, required: true },
+  paymentResult: {
+    payerId: { type: String },
+    orderId: { type: String },
+    paymentId: { type: String },
+    facilitatorAccessToken: { type: String },
+  }
 };
 
 const orderItemSchema = common.AppDataRepository.createSchema({

@@ -17,33 +17,27 @@ function validateMessage(message) {
 }
 
 export async function publishMessage(queue, message) {
+    let connection;
     try {
-
         if (!endpoints.includes(queue)) {
             throw new Error(`Invalid queue name: ${queue}`);
         }
-        
+
         validateMessage(message);
 
-        const connection = await amqp.connect(config.RABBIT_MQ).then((conn) => {
-            return conn.createChannel().then((ch) => {
-
-                const ok = ch.assertQueue(queue, { durable: true });
-
-                return ok.then(() => {
-                    ch.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
-                    console.log(`Message sent to queue ${queue}:`, message);
-                });
-            });
-        }).catch((err) => {
-            console.error('Error connecting to RabbitMQ:', err);
-        });
+        connection = await amqp.connect(config.RABBIT_MQ);
+        const channel = await connection.createChannel();
+        await channel.assertQueue(queue, { durable: true });
+        channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
+        console.log(`Message sent to queue ${queue}:`, message);
 
         setTimeout(() => {
             connection.close();
         }, 500);
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error publishing message:', error);
+        if (connection) {
+            try { connection.close(); } catch (_) { /* ignore */ }
+        }
     }
 }   

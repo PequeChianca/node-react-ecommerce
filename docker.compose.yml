@@ -26,6 +26,7 @@ services:
     environment:
       - MONGODB_URL=mongodb://mongo-db:27017
       - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
+      - RABBIT_MQ=amqp://rabbitmq
     depends_on:
       - mongo-db
   products-service:

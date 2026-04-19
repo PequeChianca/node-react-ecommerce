@@ -16,4 +16,8 @@ export default {
   AppDataRepository,
   publishMessage,
   MessageConsumer,
+  endpoints: {
+    ORDERS_QUEUE: 'orders-service',
+    NOTIFICATIONS_QUEUE: 'notifications-service',
+  }
 };

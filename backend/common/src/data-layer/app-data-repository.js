@@ -53,7 +53,7 @@ export class AppDataRepository {
         return new mongoose.Schema({
             id: { type: mongoose.Schema.Types.ObjectId, required: true },
             name: { type: String, required: true },
-            email: { type: String, required: true, unique: true, index: true, dropDups: true }
+            email: { type: String, required: true }
         });
     }
 
