@@ -136,11 +136,11 @@ Startup order is enforced via `depends_on`, and RabbitMQ uses a **healthcheck** 
 
 4. **Server Sent Events Notifications** - 
 
-### What I Learned
+### Challenges
 
-- Designing services around **bounded contexts** (users, products, orders, notifications) makes each piece easier to reason about, test, and replace independently.
 - Docker Compose's override file pattern (`-f base.yml -f override.yml`) is a clean way to share a common topology between production and development without duplicating configuration.
-- Event-driven communication via RabbitMQ decouples the Order service from the Notification service — neither needs to know the other exists, which simplifies both and makes the system more resilient.
+- Docker profile, as I faced a problem with the hot reloading approach, I had to wrap it in a profile [frontend]
+- Creating a production 'almost' ready setup. Accessing different resources via a single api gateway to expose securely your application.
 
 ### Possible Improvements
 
