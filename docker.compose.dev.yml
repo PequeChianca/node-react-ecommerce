@@ -21,10 +21,14 @@ services:
   orders-service:
     ports:
       - "5001:3000"
+      - "9229:9229"   # Node.js inspector (attach debugger here)
+    command: ["node", "--inspect=0.0.0.0:9229", "src/server.js"]
 
   products-service:
     ports:
       - "5002:3000"
+      - "9230:9229"   # Node.js inspector (attach debugger here)
+    command: ["node", "--inspect=0.0.0.0:9229", "src/server.js"]
     environment:
       - MONGODB_URL=mongodb://mongo-db:27017
       # Azurite well-known development key — not a secret
@@ -33,19 +37,24 @@ services:
   users-service:
     ports:
       - "5003:3000"
+      - "9231:9229"   # Node.js inspector (attach debugger here)
+    command: ["node", "--inspect=0.0.0.0:9229", "src/server.js"]
 
   rabbitmq:
     ports:
-      - "5672:5672"
       - "15672:15672"   # management UI: http://localhost:15672 (guest/guest)
 
   notifications-service:
     ports:
       - "5004:3000"
+      - "9232:9229"   # Node.js inspector (attach debugger here)
+    command: ["node", "--inspect=0.0.0.0:9229", "src/server.js"]
 
   # Replace the production nginx-served build with the CRA dev server.
   # Source code is mounted so edits trigger hot-module replacement instantly.
+  # Not started by default — opt in with: docker compose ... --profile frontend up
   frontend:
+    profiles: [frontend]
     container_name: frontend-dev
     # Override the production nginx Dockerfile with a minimal dev image (FROM node:20-alpine).
     # Not setting 'image' here prevents Compose from tagging/overwriting the official node image.
@@ -53,12 +62,10 @@ services:
       dockerfile: dockerfile.dev
     volumes:
       - ./frontend:/app
-      # Isolate node_modules inside the container to avoid host/container conflicts
-      - frontend_dev_modules:/app/node_modules
+      - /app/node_modules
+    environment:
+      - API_GATEWAY_URL=http://api-gateway:80
     ports:
       - "3001:3000"
     depends_on:
       - nginx
-
-volumes:
-  frontend_dev_modules:

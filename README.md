@@ -169,7 +169,6 @@ docker compose -f docker.compose.yml -f docker.compose.dev.yml up --build
 ```
 
 In dev mode:
-- The React app is served by the CRA dev-server on `http://localhost:3000` with **hot-module replacement** — edits to `frontend/src` are reflected in the browser instantly without rebuilding the container.
 - Every backend service is reachable directly on the host (see port table below).
 - The RabbitMQ management UI is available at `http://localhost:15672` (credentials: `guest` / `guest`).
 
@@ -185,6 +184,10 @@ In dev mode:
 | Azurite Blob | `10000` |
 | Azurite Queue | `10001` |
 | Azurite Table | `10002` |
+| orders-service debugger | `9229` |
+| products-service debugger | `9230` |
+| users-service debugger | `9231` |
+| notifications-service debugger | `9232` |
 
 ### First-run setup
 
@@ -211,9 +214,43 @@ PAYPAL_CLIENT_ID=your_paypal_client_id
 AZURE_BLOB_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=...
 ```
 
+#### TODO: Frontend Profile (pending to fix)
+
+```bash
+ docker compose -f docker.compose.yml -f docker.compose.dev.yml --profile frontend up --build -d
+```
+- The React app is served by the CRA dev-server on `http://localhost:3000` with **hot-module replacement** — edits to `frontend/src` are reflected in the browser instantly without rebuilding the container.
 ---
 
 ## Debugging
+
+### Attach the VS Code debugger to a backend service
+
+In dev mode every backend service starts Node.js with `--inspect` and exposes its debugger on a dedicated host port:
+
+| Service | Inspector port |
+|---|---|
+| orders-service | `9229` |
+| products-service | `9230` |
+| users-service | `9231` |
+| notifications-service | `9232` |
+
+**Steps:**
+
+1. Start the stack in dev mode:
+   ```bash
+   docker compose -f docker.compose.yml -f docker.compose.dev.yml up --build -d
+   ```
+
+2. Set breakpoints in any file under `backend/` in VS Code.
+
+3. Open the **Run & Debug** panel (`Ctrl+Shift+D`), choose one of:
+   - **Attach: orders-service** / **products-service** / **users-service** / **notifications-service** — attach to a single service.
+   - **Attach: All Services** — attach to all four at once.
+
+4. Press **F5**. VS Code will pause execution at your breakpoints.
+
+The source-map paths are configured in [.vscode/launch.json](.vscode/launch.json): `localRoot` maps `backend/` on the host to `/app` inside the container, so breakpoints in both service code and the shared `common/` library resolve correctly.
 
 ### View logs for a specific service
 

@@ -1,17 +1,16 @@
-FROM node:16-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
-# node:16 uses OpenSSL 1.x natively — legacy provider flag not needed (and not valid on Node 16)
-# Point the CRA proxy at the api-gateway container name instead of localhost
-ENV API_GATEWAY_URL=http://api-gateway:80
+ENV NODE_OPTIONS=--openssl-legacy-provider
 # Required for file-change detection inside Docker volumes on Windows/macOS
 ENV CHOKIDAR_USEPOLLING=true
 ENV WATCHPACK_POLLING=true
-# Bind to all interfaces so the port is reachable from the host
-ENV HOST=0.0.0.0
+
+# Install dependencies as part of the image so the anonymous /app/node_modules
+# volume is seeded with the correct Linux binaries (not the Windows host ones).
+COPY package*.json ./
+RUN npm install
 
 EXPOSE 3000
-
-# Use the installed binary directly instead of npx to avoid version resolution issues
-CMD ["sh", "-c", "npm install && ./node_modules/.bin/react-scripts start"]
+CMD ["sh", "-c", "npm start"]

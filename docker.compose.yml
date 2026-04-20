@@ -55,7 +55,9 @@ services:
     container_name: rabbitmq
     restart: unless-stopped
     # Only the management UI port (15672) is suppressed in production.
-    # The AMQP port is internal-only; services connect via container name.
+    ports:
+      - "5672:5672"
+    # The AMQP port is internal-only; services connect via container name.        
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
